@@ -36,7 +36,7 @@ void check_and_make_csr_matrix(torch::Tensor rowptr, torch::Tensor col,
 void spspmm_out(torch::Tensor rowptrA, torch::Tensor colA, torch::Tensor valA,
                 torch::Tensor rowptrB, torch::Tensor colB, torch::Tensor valB, 
                 torch::Tensor rowptrC, torch::Tensor colC, torch::Tensor valC,
-                int64_t ncolB, int64_t nnzcolB) {
+                int64_t ncolB) {
   auto scalar_type = valA.scalar_type();
   bool is_cuda = false;
   int ncolA = rowptrB.size(0) - 1;
