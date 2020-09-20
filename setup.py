@@ -18,7 +18,6 @@ def get_extensions():
     if cuda_support:
         Extension = CUDAExtension
     else:
-        print("cpp")
         Extension = CppExtension
     if cusp_support:
         define_macros += [("__CUSP__", None)]
