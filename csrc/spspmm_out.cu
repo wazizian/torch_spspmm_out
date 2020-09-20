@@ -8,6 +8,10 @@
 #include "cuda/spspmm_out_cuda.h"
 #endif
 
+#ifdef __CUSP__
+#include "cusp/spspmm_out_cusp.h"
+#endif
+
 template <typename scalar_t>
 void check_and_make_csr_matrix(torch::Tensor rowptr, torch::Tensor col,
                                torch::Tensor val, int ncol, bool is_cuda,
@@ -53,11 +57,15 @@ void spspmm_out(torch::Tensor rowptrA, torch::Tensor colA, torch::Tensor valA,
       check_and_make_csr_matrix<scalar_t>(rowptrA, colA, valA, ncolA, is_cuda, &A);
       check_and_make_csr_matrix<scalar_t>(rowptrB, colB, valB, ncolB, is_cuda, &B);
       check_and_make_csr_matrix<scalar_t>(rowptrC, colC, valC, ncolC, is_cuda, &C);
+#ifdef __CUSP__
+      spspmm_out_cusp<scalar_t>(is_cuda, A, B, C);
+#else
       if (is_cuda){
         AT_ERROR("TODO");
       } else {
         spspmm_out_cpu<scalar_t>(A, B, C);        
       }
+#endif
   });
 }
 

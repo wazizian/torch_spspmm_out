@@ -5,19 +5,31 @@ from torch.utils.cpp_extension import BuildExtension, CppExtension, CUDAExtensio
 
 cuda_support = torch.cuda.is_available()
 
+cusp_support = False
+if cuda_support and os.getenv("CUSP_INCLUDE_PATH", default="") != "":
+    cusp_support = True
+
 def get_extensions():
     extra_link_args = []
+    define_macros = []
     extension_dir = os.path.join(os.path.dirname(__file__), "csrc")
+    include_dirs = [extension_dir]
+
     if cuda_support:
         Extension = CUDAExtension
-        extra_link_args += ["-lcusparse"]
     else:
+        print("cpp")
         Extension = CppExtension
+    if cusp_support:
+        define_macros += [("__CUSP__", None)]
+        include_dirs += [os.getenv("CUSP_INCLUDE_PATH", "")]
+
     extension = Extension(name="torch_spspmm_out._spspmm_out",
                           sources=[
-                              "csrc/spspmm_out.cpp",
+                              "csrc/spspmm_out.cu",
                               ],
-                          include_dirs=[extension_dir],
+                          include_dirs=include_dirs,
+                          define_macros=define_macros,
                           extra_link_args=extra_link_args,
                           )
     return [extension]
